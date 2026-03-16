@@ -14,14 +14,14 @@ connectDB()
 const app = express()
 
 app.use(cors({
-  origin:[ "https://najmataskmanager.vercel.app",
-    "http:localhost:5000"
+  origin: [
+    "https://najmataskmanager.vercel.app",
+    "http://localhost:3000"
   ],
-
   credentials: true
-}));
-app.use(express.json())
+}))
 
+app.use(express.json())
 
 app.use("/api/auth", authRoutes)
 app.use("/api/tasks", taskRoutes)
