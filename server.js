@@ -14,8 +14,8 @@ connectDB()
 const app = express()
 
 app.use(cors({
-  origin: "https://najmataskmanager.vercel.app/",
-//   credentials: true
+  origin: "https://najmataskmanager.vercel.app",
+  credentials: true
 }));
 app.use(express.json())
 
