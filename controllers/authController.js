@@ -2,33 +2,25 @@ const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const User = require("../models/User")
 
-// REGISTER USER
+// REGISTER USER (no change needed)
 exports.registerUser = async (req, res) => {
 
  try {
 
   const { name, email, password } = req.body
 
-  // check fields
   if (!name || !email || !password) {
-   return res.status(400).json({
-    message: "All fields required"
-   })
+   return res.status(400).json({ message: "All fields required" })
   }
 
-  // check user exists
   const existingUser = await User.findOne({ email })
 
   if (existingUser) {
-   return res.status(400).json({
-    message: "User already exists"
-   })
+   return res.status(400).json({ message: "User already exists" })
   }
 
-  // hash password
   const hashedPassword = await bcrypt.hash(password, 10)
 
-  // create user
   const user = await User.create({
    name,
    email,
@@ -37,12 +29,7 @@ exports.registerUser = async (req, res) => {
   })
 
   res.status(201).json({
-   message: "User Registered Successfully",
-   user: {
-    id: user._id,
-    name: user.name,
-    email: user.email
-   }
+   message: "User Registered Successfully"
   })
 
  } catch (error) {
@@ -57,7 +44,7 @@ exports.registerUser = async (req, res) => {
 }
 
 
-// LOGIN USER
+// LOGIN USER (UPDATED TO COOKIE)
 exports.loginUser = async (req, res) => {
 
  try {
@@ -65,25 +52,19 @@ exports.loginUser = async (req, res) => {
   const { email, password } = req.body
 
   if (!email || !password) {
-   return res.status(400).json({
-    message: "Email and Password required"
-   })
+   return res.status(400).json({ message: "Email and Password required" })
   }
 
   const user = await User.findOne({ email })
 
   if (!user) {
-   return res.status(400).json({
-    message: "User not found"
-   })
+   return res.status(400).json({ message: "User not found" })
   }
 
   const isMatch = await bcrypt.compare(password, user.password)
 
   if (!isMatch) {
-   return res.status(400).json({
-    message: "Invalid password"
-   })
+   return res.status(400).json({ message: "Invalid password" })
   }
 
   const token = jwt.sign(
@@ -95,14 +76,15 @@ exports.loginUser = async (req, res) => {
    { expiresIn: "1d" }
   )
 
+  // ✅ STORE TOKEN IN HTTP-ONLY COOKIE
+  res.cookie("token", token, {
+   httpOnly: true,
+   secure: false, // true in production
+   sameSite: "lax"
+  })
+
   res.json({
-   message: "Login Successful",
-   token,
-   user: {
-    id: user._id,
-    name: user.name,
-    email: user.email
-   }
+   message: "Login Successful"
   })
 
  } catch (error) {
@@ -113,5 +95,17 @@ exports.loginUser = async (req, res) => {
   })
 
  }
+
+}
+
+
+// LOGOUT USER (NEW)
+exports.logoutUser = (req, res) => {
+
+ res.clearCookie("token")
+
+ res.json({
+  message: "Logged out successfully"
+ })
 
 }

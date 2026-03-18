@@ -1,6 +1,7 @@
 const express = require("express")
 const cors = require("cors")
 const dotenv = require("dotenv")
+const cookieParser = require("cookie-parser")
 
 const connectDB = require("./config/db")
 
@@ -8,17 +9,23 @@ const authRoutes = require("./routes/authRoutes")
 const taskRoutes = require("./routes/taskRoutes")
 
 dotenv.config()
-
 connectDB()
 
 const app = express()
 
-app.use(cors())
+app.use(cors({
+ origin: [
+  "https://najmataskmanager.vercel.app",
+  "http://localhost:3000"
+ ],
+ credentials: true
+}))
+
 app.use(express.json())
+app.use(cookieParser()) // ✅ IMPORTANT
 
-
-app.use("/api/auth", authRoutes)
-app.use("/api/tasks", taskRoutes)
+app.use("/api/v1/auth", authRoutes)
+app.use("/api/v1/tasks", taskRoutes)
 
 const PORT = process.env.PORT || 5000
 

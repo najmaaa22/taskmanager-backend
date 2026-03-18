@@ -1,24 +1,25 @@
 const jwt = require("jsonwebtoken")
 
-module.exports = (req,res,next)=>{
+module.exports = (req, res, next) => {
 
- const token = req.headers.authorization
+ // ✅ Get token from cookie instead of header
+ const token = req.cookies.token
 
- if(!token){
-  return res.status(401).json({msg:"No Token"})
+ if (!token) {
+  return res.status(401).json({ msg: "No Token" })
  }
 
- try{
+ try {
 
-  const decoded = jwt.verify(token.split(" ")[1],process.env.JWT_SECRET)
+  const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
   req.user = decoded
 
   next()
 
- }catch(err){
+ } catch (err) {
 
-  res.status(401).json({msg:"Invalid Token"})
+  return res.status(401).json({ msg: "Invalid Token" })
 
  }
 
